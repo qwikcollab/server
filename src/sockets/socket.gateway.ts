@@ -19,9 +19,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   async handleConnection(@ConnectedSocket() socket: Socket) {
-    console.log('new connection');
     socket.on('disconnecting', () => {
-      console.log('user disconnecting');
       socket.rooms.forEach((roomId: string) => {
         const userId = SocketSessionState.userMap[socket.id];
         RoomsState.removeUser(roomId, userId);
@@ -32,13 +30,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
-    console.log('pop');
-    // socket.rooms.forEach((roomId: string) => {
-    //   const userId = SocketSessionState.userMap[socket.id];
-    //   RoomsState.removeUser(roomId, userId);
-    //   socket.broadcast.to(roomId).emit('user-left', userId);
-    // });
-    // delete SocketSessionState.userMap[socket.id];
+    console.log(`socket id ${socket.id} disconnected`);
   }
 
   @SubscribeMessage('join-room')

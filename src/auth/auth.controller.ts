@@ -15,7 +15,14 @@ export class AuthController {
     const data = await this.authService.verifyGoogleToken(credential);
     if (data.payload) {
       const { email, picture, name } = data.payload;
-      return this.usersService.firstOrCreate({ email, name, picture });
+      const user = await this.usersService.firstOrCreate({
+        email,
+        name,
+        picture,
+      });
+      return {
+        token: this.authService.getJwtToken(user),
+      };
     }
     return data;
   }
