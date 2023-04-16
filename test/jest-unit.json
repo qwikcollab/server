@@ -1,0 +1,22 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../",
+  "roots": ["<rootDir>", "src"],
+  "modulePaths": ["<rootDir>", "src"],
+  "moduleDirectories": ["node_modules", "src"],
+  "testEnvironment": "node",
+  "testRegex": ".spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "coveragePathIgnorePatterns": ["<rootDir>/node_modules/"],
+  "coverageDirectory": "coverage",
+  "collectCoverageFrom": [
+    "<rootDir>/src/**/*.{ts,js}", "!<rootDir>/src/**/*.d.ts",
+    "!<rootDir>/src/**/*.dto.ts", "!<rootDir>/src/**/*.entity.ts",
+    "!<rootDir>/src/**/*.module.ts", "!<rootDir>/src/**/*.controller.ts",
+    "!<rootDir>/src/app.*.ts", "!<rootDir>/src/main.ts",
+    "!<rootDir>/src/**/*.type.ts", "!<rootDir>/src/**/types.ts",
+    "!<rootDir>/dist/**/*", "!<rootDir>/src/mclagan/query/**.ts"
+  ]
+}
