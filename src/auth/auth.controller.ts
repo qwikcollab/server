@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import Utils from '../utils';
 
 @Controller('auth')
 export class AuthController {
@@ -15,10 +16,12 @@ export class AuthController {
     const data = await this.authService.verifyGoogleToken(credential);
     if (data.payload) {
       const { email, picture, name } = data.payload;
+      const randomColor = Utils.getRandomFromArray(Utils.cursorColors);
       const user = await this.usersService.firstOrCreate({
         email,
         name,
         picture,
+        preferences: { color: randomColor },
       });
       return {
         token: this.authService.getJwtToken(user),

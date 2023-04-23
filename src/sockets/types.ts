@@ -1,5 +1,6 @@
 import { Update } from '@codemirror/collab';
 import { Text } from '@codemirror/state';
+import { CursorPreferences } from '../users/types';
 
 export interface JoinRoomMessage {
   roomId: string;
@@ -9,6 +10,8 @@ export interface JoinRoomMessage {
 
 export interface User extends JoinRoomMessage {
   userId: string;
+  picture?: string;
+  preferences?: CursorPreferences;
 }
 
 export interface CursorPosition {

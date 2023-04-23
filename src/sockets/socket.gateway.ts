@@ -12,9 +12,13 @@ import { Server, Socket } from 'socket.io';
 import { SocketSessionState } from './states/SocketSessionState';
 import { RoomsState } from './states/RoomState';
 import { Authority } from './authority/Authority';
+import { UsersService } from '../users/users.service';
+import { CursorPreferences } from '../users/types';
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly usersService: UsersService) {}
+
   @WebSocketServer()
   server: Server;
 
@@ -35,12 +39,22 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('join-room')
   async onJoinRoom(
-    @MessageBody() msg: JoinRoomMessage,
+    @MessageBody() msg: { userId: string; roomId: string },
     @ConnectedSocket() socket: Socket,
   ): Promise<any> {
-    const user = msg;
-    SocketSessionState.userMap[socket.id] = msg.userId;
-    RoomsState.addUser(user);
+    const { userId, roomId } = msg;
+    console.log('new user');
+    const user = await this.usersService.findOne(userId);
+    const userJoinedMessage = {
+      userId,
+      roomId,
+      name: user.name,
+      picture: user.picture,
+      preferences: user.preferences as unknown as CursorPreferences,
+    };
+
+    SocketSessionState.userMap[socket.id] = userId;
+    RoomsState.addUser(userJoinedMessage);
 
     socket.join(msg.roomId);
 
@@ -51,7 +65,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       doc: info.doc,
     };
 
-    socket.to(msg.roomId).emit('user-joined', user);
+    socket.to(msg.roomId).emit('user-joined', userJoinedMessage);
     return existingState;
   }
 

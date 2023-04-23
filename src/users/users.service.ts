@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { User } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +17,7 @@ export class UsersService {
         email: createUserDto.email,
         name: createUserDto.name,
         picture: createUserDto.picture,
+        preferences: createUserDto.preferences as Prisma.JsonObject,
       },
     });
   }
@@ -25,8 +26,10 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    return this.prisma.user.findFirst({
+      where: { id: id },
+    });
   }
 
   update(id: number) {
