@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { ExistingState, JoinRoomMessage } from './types';
+import { ExistingState } from './types';
 import { Server, Socket } from 'socket.io';
 import { SocketSessionState } from './states/SocketSessionState';
 import { RoomsState } from './states/RoomState';
@@ -17,7 +17,9 @@ import { CursorPreferences } from '../users/types';
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {
+    console.log('instantiated websocket module');
+  }
 
   @WebSocketServer()
   server: Server;
@@ -43,7 +45,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
   ): Promise<any> {
     const { userId, roomId } = msg;
-    console.log('new user');
     const user = await this.usersService.findOne(userId);
     const userJoinedMessage = {
       userId,
@@ -65,6 +66,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       doc: info.doc,
     };
 
+    console.log('new user', existingState.doc);
     socket.to(msg.roomId).emit('user-joined', userJoinedMessage);
     return existingState;
   }
@@ -80,7 +82,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     const userId = SocketSessionState.userMap[socket.id] ?? ''; // TODO error-handling for ''
-    console.log('update from client ', room);
     Authority.pullUpdatesAnsSyncWithClient(
       {
         version,

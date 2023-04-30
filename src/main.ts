@@ -3,11 +3,31 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { config } from 'dotenv';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { TimeoutInterceptor } from './timeout.interceptor';
+import { Request, Response, NextFunction } from 'express';
+
 config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use((request: Request, response: Response, next: NextFunction) => {
+    const { ip, method, originalUrl } = request;
+    const userAgent = request.get('user-agent') || '';
+
+    // response.on('finish', () => {
+    //   const { statusCode } = response;
+    //   const contentLength = response.get('content-length');
+    //
+    //   console.log(
+    //     `${method} ${originalUrl} ${statusCode} ${contentLength} - ${userAgent} ${ip}`,
+    //   );
+    // });
+
+    next();
+  });
+
+  app.useGlobalInterceptors(new TimeoutInterceptor());
   app.useWebSocketAdapter(new IoAdapter(app));
 
   app.enableCors({
