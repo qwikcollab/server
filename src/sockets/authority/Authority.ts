@@ -25,7 +25,6 @@ export class Authority {
       console.log(changes.version, existingUpdates.length, 'version mismatch');
       return;
     } else {
-      console.log('match', existingUpdates);
       changes.updates.forEach((u) => {
         if (!u.serializedUpdates) {
           return;
@@ -40,7 +39,7 @@ export class Authority {
   public static getRoomData(roomId: string): RoomData {
     this._data[roomId] = this._data[roomId] ?? {
       updates: [],
-      doc: Text.of(['hello world']),
+      doc: Text.of(['console.log("hello world")']),
     };
 
     return this._data[roomId];

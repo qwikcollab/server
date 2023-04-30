@@ -11,11 +11,19 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  name        String
-  picture     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  preferences Json?
+  id              String          @id @default(uuid())
+  email           String          @unique
+  name            String
+  picture         String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  preferences     Json?
+  createdSessions CollabSession[]
+}
+
+model CollabSession {
+  id        String @id @default(uuid())
+  name      String
+  creatorId String
+  creator   User   @relation(fields: [creatorId], references: [id])
 }

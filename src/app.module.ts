@@ -11,9 +11,16 @@ import {
   MiddlewareConsumer,
 } from '@nestjs/common';
 import { JwtAuthorizationMiddleware } from './authorization/jwt-authorization.middleware';
+import { CollabSessionModule } from './collab-session/collab-session.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, SocketModule],
+  imports: [
+    PrismaModule,
+    UsersModule,
+    AuthModule,
+    SocketModule,
+    CollabSessionModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
@@ -21,6 +28,9 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthorizationMiddleware)
-      .forRoutes({ path: 'profile', method: RequestMethod.GET });
+      .forRoutes(
+        { path: 'profile', method: RequestMethod.GET },
+        { path: 'collab-session', method: RequestMethod.POST },
+      );
   }
 }
