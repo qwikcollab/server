@@ -7,5 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   controllers: [CollabSessionController],
   imports: [PrismaModule],
   providers: [CollabSessionService],
+  exports: [CollabSessionService],
 })
 export class CollabSessionModule {}

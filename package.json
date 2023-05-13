@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config test/jest-e2e.json"
+    "test:e2e": "jest --config test/jest-e2e.json",
+    "db:refresh": "prisma migrate reset --preview-feature"
   },
   "dependencistes": {
     "@nestjs/common": "^9.0.0",
@@ -33,6 +34,7 @@
     "swagger-ui-express": "^4.6.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/swagger": "^6.3.0",
@@ -79,9 +81,11 @@
   "dependencies": {
     "@codemirror/collab": "^6.0.0",
     "@codemirror/state": "^6.2.0",
+    "@nestjs/cache-manager": "^1.0.0",
     "@nestjs/platform-socket.io": "^9.4.0",
     "@nestjs/websockets": "^9.4.0",
     "@prisma/client": "^4.12.0",
+    "cache-manager": "^5.2.1",
     "dotenv": "^16.0.3",
     "google-auth-library": "^8.7.0",
     "jsonwebtoken": "^9.0.0",

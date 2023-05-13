@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthorizationMiddleware } from './authorization/jwt-authorization.middleware';
 import { CollabSessionModule } from './collab-session/collab-session.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -30,7 +31,9 @@ export class AppModule implements NestModule {
       .apply(JwtAuthorizationMiddleware)
       .forRoutes(
         { path: 'profile', method: RequestMethod.GET },
-        { path: 'collab-session', method: RequestMethod.POST },
+        { path: 'collab-sessions', method: RequestMethod.POST },
+        { path: 'collab-sessions', method: RequestMethod.GET },
+        { path: 'collab-sessions/:id', method: RequestMethod.GET },
       );
   }
 }

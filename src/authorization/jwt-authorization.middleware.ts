@@ -1,8 +1,9 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, HttpException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { UsersService } from '../users/users.service';
+import { MeasureTime } from '../utils';
 const jwtsalt = process.env.JWT_SALT;
 
 @Injectable()
@@ -12,17 +13,16 @@ export class JwtAuthorizationMiddleware implements NestMiddleware {
     private readonly usersService: UsersService,
   ) {}
 
-  async use(req: any, res: any, next: () => void) {
+  async use(req: any, res: any, next: any) {
     const token = req.headers.authorization;
 
-    if (!token) {
-      return res.status(400);
-    }
-
     try {
+      if (!token) {
+        throw new HttpException('No token provided', 401);
+      }
       const decoded = jwt.verify(token, jwtsalt, { complete: true });
       if (!decoded?.payload) {
-        return res.status(401);
+        throw new HttpException('No token payload', 401);
       }
 
       const payload = decoded.payload as JwtPayload;
@@ -33,11 +33,9 @@ export class JwtAuthorizationMiddleware implements NestMiddleware {
       return next();
     } catch (err) {
       if (err instanceof TokenExpiredError) {
-        return res.status(401);
+        throw new HttpException('Token expired', 401);
       }
-
-      console.error(err);
-      return res.status(500);
+      next(err);
     }
   }
 }
