@@ -2,10 +2,14 @@ import { User } from './types';
 import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { AuthorityService } from './authority.service';
 
 @Injectable()
 export class RoomStateService {
-  constructor(@Inject(CACHE_MANAGER) private cache: Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cache: Cache,
+    private readonly authorityService: AuthorityService,
+  ) {}
 
   public async addUser(user: User) {
     const existingUsers = await this.getUsers(user.roomId);
@@ -26,6 +30,11 @@ export class RoomStateService {
       return;
     }
     existingUsers = existingUsers.filter((u) => u.userId !== userId);
+    if (existingUsers.length === 0) {
+      await this.cache.del(`${roomId}-users`);
+      await this.authorityService.clearRoomDocData(roomId);
+      return;
+    }
     await this.setUsers(roomId, existingUsers);
   }
 

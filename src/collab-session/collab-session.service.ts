@@ -7,12 +7,12 @@ import { faker } from '@faker-js/faker';
 export class CollabSessionService {
   constructor(private prisma: PrismaService) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async create(creator: User) {
     return this.prisma.collabSession.create({
       data: {
         creatorId: creator.id,
         name: `${faker.company.name()} ${faker.name.firstName()}`,
+        text: 'console.log("hello world")',
       },
     });
   }
@@ -42,6 +42,9 @@ export class CollabSessionService {
             },
           },
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 

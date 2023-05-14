@@ -3,7 +3,6 @@ import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { UsersService } from '../users/users.service';
-import { MeasureTime } from '../utils';
 const jwtsalt = process.env.JWT_SALT;
 
 @Injectable()
@@ -29,7 +28,6 @@ export class JwtAuthorizationMiddleware implements NestMiddleware {
       req.email = payload.email;
       req.user = await this.usersService.findByEmail(payload.email);
 
-      console.log('going to next');
       return next();
     } catch (err) {
       if (err instanceof TokenExpiredError) {

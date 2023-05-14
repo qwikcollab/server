@@ -5,27 +5,30 @@ import { config } from 'dotenv';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { TimeoutInterceptor } from './timeout.interceptor';
 import { Request, Response, NextFunction } from 'express';
+import * as Sentry from '@sentry/node';
+import { SentryInterceptor } from './shared/interceptors/sentry.interceptor';
+import * as process from 'process';
 
 config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use((request: Request, response: Response, next: NextFunction) => {
-    const { ip, method, originalUrl } = request;
-    const userAgent = request.get('user-agent') || '';
-
-    // response.on('finish', () => {
-    //   const { statusCode } = response;
-    //   const contentLength = response.get('content-length');
-    //
-    //   console.log(
-    //     `${method} ${originalUrl} ${statusCode} ${contentLength} - ${userAgent} ${ip}`,
-    //   );
-    // });
-
-    next();
-  });
+  // app.use((request: Request, response: Response, next: NextFunction) => {
+  //   const { ip, method, originalUrl } = request;
+  //   const userAgent = request.get('user-agent') || '';
+  //
+  //   response.on('finish', () => {
+  //     const { statusCode } = response;
+  //     const contentLength = response.get('content-length');
+  //
+  //     console.log(
+  //       `${method} ${originalUrl} ${statusCode} ${contentLength} - ${userAgent} ${ip}`,
+  //     );
+  //   });
+  //
+  //   next();
+  // });
 
   app.useGlobalInterceptors(new TimeoutInterceptor());
   app.useWebSocketAdapter(new IoAdapter(app));
@@ -37,6 +40,13 @@ async function bootstrap() {
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
+
+  const env = process.env.NODE_ENV || 'development';
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: env,
+  });
+  app.useGlobalInterceptors(new SentryInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('QwikCollab')

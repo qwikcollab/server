@@ -32,15 +32,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(@ConnectedSocket() socket: Socket) {
     socket.on('disconnecting', async () => {
-      const userId = SocketSessionState.userMap[socket.id];
-      const rooms = Array.from(socket.rooms);
-      await Promise.all(
-        rooms.map(async (roomId: string) => {
-          await this.roomStateService.removeUser(roomId, userId);
-          socket.broadcast.to(roomId).emit('user-left', userId);
-        }),
-      );
-      delete SocketSessionState.userMap[socket.id];
+      const { roomId, userId } = SocketSessionState.userMap[socket.id];
+      await this.roomStateService.removeUser(roomId, userId);
     });
   }
 
@@ -58,6 +51,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!room) {
       return { failed: true, message: 'Room not found' };
     }
+    SocketSessionState.userMap[socket.id] = { userId, roomId };
 
     const user = await this.usersService.findOne(userId);
     const userJoinedMessage = {
@@ -68,7 +62,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       preferences: user.preferences as unknown as CursorPreferences,
     };
 
-    SocketSessionState.userMap[socket.id] = userId;
     await this.roomStateService.addUser(userJoinedMessage);
 
     socket.join(msg.roomId);
@@ -80,9 +73,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       doc: info.doc,
     };
 
-    console.log('new user', existingState.doc);
     socket.to(msg.roomId).emit('user-joined', userJoinedMessage);
-    this.collabSessionService.firstOrCreateUserJoinedCollabSession(
+    await this.collabSessionService.firstOrCreateUserJoinedCollabSession(
       user.id,
       roomId,
     );
@@ -99,8 +91,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!room) {
       return;
     }
-    const userId = SocketSessionState.userMap[socket.id] ?? ''; // TODO error-handling for ''
-    this.authorityService.pullUpdatesAnsSyncWithClient(
+    const userId = SocketSessionState.userMap[socket.id].userId ?? ''; // TODO error-handling for ''
+    await this.authorityService.pullUpdatesAnsSyncWithClient(
       {
         version,
         updates,
