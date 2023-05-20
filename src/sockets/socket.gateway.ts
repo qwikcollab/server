@@ -9,12 +9,12 @@ import {
 } from '@nestjs/websockets';
 import { ExistingState } from './types';
 import { Server, Socket } from 'socket.io';
-import { SocketSessionState } from './states/SocketSessionState';
+import { SocketSessionState } from './cache/SocketSessionState';
 import { UsersService } from '../users/users.service';
 import { CursorPreferences } from '../users/types';
 import { CollabSessionService } from '../collab-session/collab-session.service';
-import { RoomStateService } from './room-state.service';
-import { AuthorityService } from './authority.service';
+import { RoomStateService } from './cache/room-state.service';
+import { AuthorityService } from './cache/authority.service';
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {

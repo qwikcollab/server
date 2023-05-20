@@ -1,8 +1,8 @@
 import { Injectable, NestMiddleware, HttpException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../../users/users.service';
 const jwtsalt = process.env.JWT_SALT;
 
 @Injectable()

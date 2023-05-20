@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { EditorChangesMessage, RoomData } from './types';
+import { EditorChangesMessage, RoomData } from '../types';
 import { Server } from 'socket.io';
 import { ChangeSet, Text } from '@codemirror/state';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { CollabSessionService } from '../collab-session/collab-session.service';
+import { CollabSessionService } from '../../collab-session/collab-session.service';
 
 @Injectable()
 export class AuthorityService {

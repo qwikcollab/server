@@ -10,9 +10,8 @@ import {
   RequestMethod,
   MiddlewareConsumer,
 } from '@nestjs/common';
-import { JwtAuthorizationMiddleware } from './authorization/jwt-authorization.middleware';
+import { JwtAuthorizationMiddleware } from './shared/middleware/jwt-authorization.middleware';
 import { CollabSessionModule } from './collab-session/collab-session.module';
-import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
