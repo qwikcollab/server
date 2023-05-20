@@ -1,4 +1,4 @@
-import { User } from './types';
+import { RoomUser } from './types';
 import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -11,7 +11,7 @@ export class RoomStateService {
     private readonly authorityService: AuthorityService,
   ) {}
 
-  public async addUser(user: User) {
+  public async addUser(user: RoomUser) {
     const existingUsers = await this.getUsers(user.roomId);
     const alreadyExists = existingUsers.find((u) => u.userId === user.userId);
     if (alreadyExists) {
@@ -38,12 +38,12 @@ export class RoomStateService {
     await this.setUsers(roomId, existingUsers);
   }
 
-  public async getUsers(roomId: string): Promise<User[]> {
-    const users = await this.cache.get<User[]>(`${roomId}-users`);
+  public async getUsers(roomId: string): Promise<RoomUser[]> {
+    const users = await this.cache.get<RoomUser[]>(`${roomId}-users`);
     return users ?? [];
   }
 
-  public async setUsers(roomId: string, users: User[]) {
+  public async setUsers(roomId: string, users: RoomUser[]) {
     await this.cache.set(`${roomId}-users`, users, 0);
   }
 }

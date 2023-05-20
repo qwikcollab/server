@@ -9,6 +9,8 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
+    "inlineSources": true,
+    "sourceRoot": "/",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,

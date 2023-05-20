@@ -32,7 +32,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(@ConnectedSocket() socket: Socket) {
     socket.on('disconnecting', async () => {
-      const { roomId, userId } = SocketSessionState.userMap[socket.id];
+      const state = SocketSessionState.userMap[socket.id];
+      if (!state?.userId) {
+        return;
+      }
+      const { userId, roomId } = state;
       await this.roomStateService.removeUser(roomId, userId);
     });
   }

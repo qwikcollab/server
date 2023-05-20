@@ -37,3 +37,4 @@ lerna-debug.log*
 .env
 fly.toml
 map.sh
+.env.local

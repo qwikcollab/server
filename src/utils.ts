@@ -1,5 +1,15 @@
 export default class Utils {
-  public static cursorColors = ['red', 'green', 'blue'];
+  public static cursorColors = [
+    'red',
+    'green',
+    'blue',
+    'yellow',
+    'purple',
+    'pink',
+    'teal',
+    'cyan',
+    'lime',
+  ];
 
   public static getRandomFromArray(data: Array<any>): any {
     const idx = Math.floor(Math.random() * data.length);
