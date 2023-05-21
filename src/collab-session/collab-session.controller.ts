@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
-import { CollabSession, User, UserCollabSession } from '@prisma/client';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { CollabSession, User } from '@prisma/client';
 import { USER } from '../decorators';
 import { CollabSessionService } from './collab-session.service';
 
@@ -8,8 +8,11 @@ export class CollabSessionController {
   constructor(private collabSessionService: CollabSessionService) {}
 
   @Post()
-  async create(@USER() user: User): Promise<CollabSession> {
-    return this.collabSessionService.create(user);
+  async create(
+    @USER() user: User,
+    @Body() body: { lang: string },
+  ): Promise<CollabSession> {
+    return this.collabSessionService.create(user, body.lang);
   }
 
   @Get()

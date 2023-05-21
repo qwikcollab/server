@@ -75,6 +75,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       users: await this.roomStateService.getUsers(msg.roomId),
       updates: info.updates,
       doc: info.doc,
+      lang: room.lang,
     };
 
     socket.to(msg.roomId).emit('user-joined', userJoinedMessage);

@@ -38,4 +38,5 @@ export interface ExistingState {
   users: RoomUser[];
   doc: Text;
   updates: Update[];
+  lang: string;
 }

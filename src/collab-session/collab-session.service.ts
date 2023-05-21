@@ -2,17 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import { faker } from '@faker-js/faker';
+import Utils from '../utils';
 
 @Injectable()
 export class CollabSessionService {
   constructor(private prisma: PrismaService) {}
 
-  async create(creator: User) {
+  async create(creator: User, lang: string) {
     return this.prisma.collabSession.create({
       data: {
         creatorId: creator.id,
         name: `${faker.company.name()} ${faker.name.firstName()}`,
-        text: 'console.log("hello world")',
+        lang: lang,
+        text: Utils.getLangDefaultCode(lang),
       },
     });
   }

@@ -15,6 +15,17 @@ export default class Utils {
     const idx = Math.floor(Math.random() * data.length);
     return data[idx];
   }
+
+  public static getLangDefaultCode(lang: string): string {
+    switch (lang) {
+      case 'javascript':
+        return 'console.log("hello world")';
+      case 'python':
+        return 'print("hello world")';
+      default:
+        return '// Write your code here';
+    }
+  }
 }
 
 // define a custom decorator function
