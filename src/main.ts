@@ -45,6 +45,7 @@ async function bootstrap() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: env,
+    release: process.env.APP_VERSION,
   });
   app.useGlobalInterceptors(new SentryInterceptor());
 

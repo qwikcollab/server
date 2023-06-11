@@ -7,7 +7,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { ExistingState } from './types';
+import { ExistingState, RoomUser } from './types';
 import { Server, Socket } from 'socket.io';
 import { SocketSessionState } from './cache/SocketSessionState';
 import { UsersService } from '../users/users.service';
@@ -31,18 +31,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   async handleConnection(@ConnectedSocket() socket: Socket) {
-    socket.on('disconnecting', async () => {
-      const state = SocketSessionState.userMap[socket.id];
-      if (!state?.userId) {
-        return;
-      }
-      const { userId, roomId } = state;
-      await this.roomStateService.removeUser(roomId, userId);
-    });
+    // handle connection
   }
 
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
-    console.log(`socket id ${socket.id} disconnected`);
+    await this.userLeaveRoom(socket.id);
   }
 
   @SubscribeMessage('join-room')
@@ -58,7 +51,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     SocketSessionState.userMap[socket.id] = { userId, roomId };
 
     const user = await this.usersService.findOne(userId);
-    const userJoinedMessage = {
+    const userJoinedMessage: RoomUser = {
       userId,
       roomId,
       name: user.name,
@@ -84,6 +77,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       roomId,
     );
     return existingState;
+  }
+
+  @SubscribeMessage('leave-room')
+  async userLeft(@ConnectedSocket() socket: Socket) {
+    await this.userLeaveRoom(socket.id);
   }
 
   @SubscribeMessage('updateFromClient')
@@ -114,22 +112,36 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() msg: any,
     @ConnectedSocket() socket: Socket,
   ): Promise<any> {
-    const { version, roomId, userId, name } = msg;
-    const user = { userId, roomId, name };
-    SocketSessionState.userMap[socket.id] = userId;
-    await this.roomStateService.addUser(user);
-    socket.join(roomId);
+    const { version, roomId, userId } = msg;
 
+    SocketSessionState.userMap[socket.id] = { userId, roomId };
+    const user = await this.usersService.findOne(userId);
+    const userJoinedMessage: RoomUser = {
+      userId,
+      roomId,
+      name: user.name,
+      picture: user.picture,
+      preferences: user.preferences as unknown as CursorPreferences,
+    };
+
+    await this.roomStateService.addUser(userJoinedMessage);
+
+    socket.join(roomId);
     // send to everyone except sender
-    socket.to(roomId).emit('user-joined', user);
+    socket.to(roomId).emit('user-joined', userJoinedMessage);
 
     const { updates } = await this.authorityService.getRoomData(roomId);
-    return updates.slice(version, updates.length).map((u) => {
+    const pending = updates.slice(version, updates.length).map((u) => {
       return {
         serializedUpdates: u.changes.toJSON(),
         clientId: u.clientID,
       };
     });
+
+    return {
+      updates: pending,
+      users: await this.roomStateService.getUsers(msg.roomId),
+    };
   }
 
   @SubscribeMessage('positionUpdateFromClient')
@@ -143,10 +155,23 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     socket.to(room).emit('positionUpdateFromServer', {
-      socketId: socket.id,
       head,
       anchor,
       userId,
     });
+  }
+
+  private async userLeaveRoom(socketId: string) {
+    const state = SocketSessionState.userMap[socketId];
+    if (!state) {
+      return;
+    }
+    if (state && !state.userId) {
+      throw new Error('User id not found for' + socketId);
+    }
+    const { userId, roomId } = state;
+    await this.roomStateService.removeUser(roomId, userId);
+    this.server.to(roomId).emit('user-left', userId);
+    delete SocketSessionState.userMap[socketId];
   }
 }

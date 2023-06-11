@@ -75,11 +75,12 @@ export class AuthorityService {
     clientId: string,
   ) {
     const data = await this.getRoomData(roomId);
+
+    data.doc = changeSet.apply(data.doc);
     data.updates.push({
       changes: changeSet,
       clientID: clientId,
     });
-    data.doc = changeSet.apply(data.doc);
     await this.setDocData(roomId, data);
   }
 

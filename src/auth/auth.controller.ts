@@ -32,8 +32,8 @@ export class AuthController {
   }
 
   @Post('register')
-  public async register(@Body() body: { email: string; password: string }) {
-    const { email, password } = body;
+  public async register(@Body() body: { email: string }) {
+    const { email } = body;
     const user = await this.usersService.firstOrCreate({
       email,
       name: faker.name.fullName(),
