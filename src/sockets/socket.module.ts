@@ -10,5 +10,6 @@ import { CacheModule } from '@nestjs/cache-manager';
   controllers: [],
   providers: [SocketGateway, RoomStateService, AuthorityService],
   imports: [UsersModule, CollabSessionModule, CacheModule.register()],
+  exports: [AuthorityService],
 })
 export class SocketModule {}

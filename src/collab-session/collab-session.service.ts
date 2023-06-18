@@ -19,6 +19,17 @@ export class CollabSessionService {
     });
   }
 
+  async update(user: User, { id, name }: { id: string; name: string }) {
+    return this.prisma.collabSession.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+      },
+    });
+  }
+
   async find(id: string) {
     return this.prisma.collabSession.findUnique({
       where: {
@@ -78,7 +89,7 @@ export class CollabSessionService {
         id: sessionId,
       },
       data: {
-        text: text as Prisma.JsonValue,
+        text: text,
       },
     });
   }

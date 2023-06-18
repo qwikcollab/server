@@ -43,6 +43,6 @@ model CollabSession {
   updatedAt          DateTime            @updatedAt
   creator            User                @relation(fields: [creatorId], references: [id])
   lang               String
-  text               Json?
+  text               String
   userCollabSessions UserCollabSession[]
 }

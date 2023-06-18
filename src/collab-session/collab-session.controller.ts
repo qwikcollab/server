@@ -15,6 +15,15 @@ export class CollabSessionController {
     return this.collabSessionService.create(user, body.lang);
   }
 
+  @Post(':id')
+  async update(
+    @USER() user: User,
+    @Param('id') id: string,
+    @Body() body: { name: string },
+  ): Promise<CollabSession> {
+    return this.collabSessionService.update(user, { name: body.name, id });
+  }
+
   @Get()
   async index(@USER() user: User): Promise<CollabSession[]> {
     return this.collabSessionService.index(user.id);

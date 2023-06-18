@@ -33,6 +33,7 @@ export class AppModule implements NestModule {
         { path: 'collab-sessions', method: RequestMethod.POST },
         { path: 'collab-sessions', method: RequestMethod.GET },
         { path: 'collab-sessions/:id', method: RequestMethod.GET },
+        { path: 'collab-sessions/:id', method: RequestMethod.POST },
       );
   }
 }

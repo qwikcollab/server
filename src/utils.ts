@@ -1,3 +1,11 @@
+export enum Langs {
+  JS = 'javascript',
+  TS = 'typescript',
+  PYTHON = 'python',
+  PHP = 'php',
+  JAVA = 'java',
+}
+
 export default class Utils {
   public static cursorColors = [
     'red',
@@ -18,10 +26,24 @@ export default class Utils {
 
   public static getLangDefaultCode(lang: string): string {
     switch (lang) {
-      case 'javascript':
+      case Langs.JS:
         return 'console.log("hello world")';
-      case 'python':
+      case Langs.TS:
+        return 'console.log("hello world")';
+      case Langs.PYTHON:
         return 'print("hello world")';
+      case Langs.PHP:
+        return '<?php\n echo "hello world"; \n?>';
+      case Langs.JAVA:
+        return (
+          'class HelloWorld {\n' +
+          '  public static void main(String[] args) {\n' +
+          '    System.out.println("Hello World!");\n' +
+          '  }\n' +
+          '}'
+        );
+      case 'ruby':
+        return 'puts "hello world"';
       default:
         return '// Write your code here';
     }

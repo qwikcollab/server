@@ -39,4 +39,5 @@ export interface ExistingState {
   doc: Text;
   updates: Update[];
   lang: string;
+  sessionName: string;
 }

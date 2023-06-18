@@ -35,7 +35,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
-    await this.userLeaveRoom(socket.id);
+    await this.userLeaveRoom(socket);
   }
 
   @SubscribeMessage('join-room')
@@ -69,6 +69,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       updates: info.updates,
       doc: info.doc,
       lang: room.lang,
+      sessionName: room.name,
     };
 
     socket.to(msg.roomId).emit('user-joined', userJoinedMessage);
@@ -81,7 +82,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('leave-room')
   async userLeft(@ConnectedSocket() socket: Socket) {
-    await this.userLeaveRoom(socket.id);
+    await this.userLeaveRoom(socket);
   }
 
   @SubscribeMessage('updateFromClient')
@@ -89,17 +90,14 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() msg: any,
     @ConnectedSocket() socket: Socket,
   ): Promise<any> {
-    const { version, updates, head } = msg;
-    const room = Array.from(socket.rooms).find((id) => id.length === 36);
-    if (!room) {
-      return;
-    }
+    console.log('received update from client');
+    const { version, updates, head, roomId } = msg;
     const userId = SocketSessionState.userMap[socket.id].userId ?? ''; // TODO error-handling for ''
     await this.authorityService.pullUpdatesAnsSyncWithClient(
       {
         version,
         updates,
-        roomId: room,
+        roomId,
         head,
         userId,
       },
@@ -149,19 +147,16 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() msg: any,
     @ConnectedSocket() socket: Socket,
   ): Promise<any> {
-    const { head, anchor, userId } = msg;
-    const room = Array.from(socket.rooms).find((id) => id.length === 36);
-    if (!room) {
-      return;
-    }
-    socket.to(room).emit('positionUpdateFromServer', {
+    const { head, anchor, userId, roomId } = msg;
+    socket.to(roomId).emit('positionUpdateFromServer', {
       head,
       anchor,
       userId,
     });
   }
 
-  private async userLeaveRoom(socketId: string) {
+  private async userLeaveRoom(socket: Socket) {
+    const socketId = socket.id;
     const state = SocketSessionState.userMap[socketId];
     if (!state) {
       return;
