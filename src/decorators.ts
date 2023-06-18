@@ -15,3 +15,19 @@ export const USER = createParamDecorator(
     return request.user; // extract email from request
   },
 );
+
+// run only in local
+export function OnlyLocal() {
+  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+    const originalMethod = descriptor.value;
+    if (process.env.NODE_ENV === 'development') {
+      // return the original method if the environment is development
+      return descriptor;
+    } else {
+      // return a dummy function that does nothing otherwise
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      descriptor.value = () => {};
+      return descriptor;
+    }
+  };
+}
